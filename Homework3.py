@@ -1,0 +1,78 @@
+#Homework3
+#Tarik Dahnoun
+import numpy as np
+import pylab as py
+from scipy.integrate import odeint
+
+def ODE(N,t):
+    return (-1/Tau)*N
+    
+def Euler(N0, tmin, tmax, nts, deriv):
+    t = np.linspace(0,tmax,nts)
+    dt = t[1]-t[0]
+        
+    N = np.zeros_like(t)
+    N[0] = N0
+    
+    for it in range(0,nts-1):
+        N[it+1] = N[it] + deriv(N[it], t[it])*dt
+    
+    py.plot(t,N,'r.-',label=r"Euler")
+    return t, N
+    
+def RK2(N0, tmin, tmax, nts, deriv):
+    t = np.linspace(tmin,tmax,nts)
+    dt = t[1]-t[0]
+        
+    N = np.zeros_like(t)
+    Nh = np.zeros_like(t)
+
+    N[0] = N0
+    
+    for it in np.arange(0,len(t)-1):
+        Nh[it] = N[it] + 0.5*dt*deriv(N[it],t[it])
+        N[it+1] = N[it] + dt*deriv(Nh[it],t[it])
+
+    py.plot(t,N,'b.-',label=r"RK2")
+    return t, N
+    
+def Scipi(N_initial, tmin, tmax, nts, deriv):
+    t = np.linspace(tmin, tmax, nts)
+    N = np.zeros_like(t)
+    
+    N = odeint(deriv, N_initial, t)
+    py.plot(t,N,'g.-',label=r"Scipy") #Very hard to see this graph, as its so close to the actual value
+    return t,N
+
+def Analytic(N0, tmin, tmax, nts):
+    t = np.linspace(tmin,tmax,nts)
+    Tau=5.0
+    
+    N_exact = N0 * np.exp(-t/Tau)
+    py.plot(t,N_exact,'y.-',label=r"Exact")
+    return N_exact
+
+N0=100.0
+Tau=5.0
+tmin=0.0
+tmax=8.0
+nts=5
+
+
+t,N_Euler = Euler(N0, tmin, tmax, nts, ODE)
+t,N_RK2 = RK2(N0, tmin, tmax, nts, ODE)
+t,N_Scipi = Scipi(N0, tmin, tmax, nts, ODE)
+N_Analytic = Analytic(N0, tmin, tmax, nts)
+
+print "Euler's method:", N_Euler
+print "RK2 method:", N_RK2
+print "Scipy method:", N_Scipi
+print "Analytic solution:", N_Analytic
+
+py.xlabel("Time [s]",fontsize=16)
+py.ylabel("Nuclei",fontsize=16)
+py.axhline(0,color='k',ls='--')
+py.xlim(left=0)
+py.title("Nuclei per time")
+py.legend()
+py.show()
